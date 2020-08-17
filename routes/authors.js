@@ -3,8 +3,22 @@ const router = express.Router()
 const Author = require('../models/author')
 
 // All Authors Route
-router.get('/', (req, res) => {
-    res.render('authors/index')
+router.get('/', async (req, res) => {
+    // creo una variabile con le opzioni di ricerca
+    let searchOptions = {}
+    // la ricerca avviene nell'url: se c'è una richiesta query, riempio la variabile
+    if (req.query.name != null && req.query.name !== '') {
+        searchOptions.name = new RegExp(req.query.name, 'i') // istanza per ricerca, non case sensitive
+    }
+    try {
+        const authors = await Author.find(searchOptions) // author.find a cui passo un empty object = no condizioni => trova tutti i riferimenti
+        res.render('authors/index', {
+            authors: authors,
+            searchOptions: req.query
+        })
+    } catch (error) {
+        res.redirect('/')
+    }
 })
 
 // New Authors Route
@@ -22,10 +36,11 @@ router.post('/', async (req, res) => { // post per creare nuovo autore
         name: req.body.name
     })
     try {
-        const newAuthor = await author.save() // viene atteso il salvataggio e solo dopo viene popolata la newAuthor
+        const newAuthor = await author.save() // viene atteso il salvataggio su mongoose (che avviene in modo asincrono) e solo dopo viene popolata la newAuthor
         // res.redirect('authors/${newAuthor.id}')
         res.redirect('authors')
     } catch (error) {
+        // se c'è un errore reindirizzo indietro e ripopolo i campi con i valori inseriti, e mostro un error Message
         let locals = {
             errorMessage: 'Error creating Author'
         }
@@ -34,24 +49,6 @@ router.post('/', async (req, res) => { // post per creare nuovo autore
             locals
         })
     }
-    // // salvo l'istanza creata tramite callback f. save
-    // author.save((err, newAuthor) => {
-    //     let locals = {
-    //         errorMessage: 'Error creating Author'
-    //     }
-    //     // se c'è un errore reindirizzo indietro e ripopolo i campi con i valori inseriti, e mostro un error Message
-    //     if (err) {
-
-    //         res.render('authors/new', {
-    //             author: author,
-    //             locals
-    //         })
-    //     } else {
-    //         // res.redirect('authors/${newAuthor.id}')
-    //         res.redirect('authors')
-    //     }
-    // })
-    // res.send(req.body.name) // send: invio al server. Tramite body-parser prendo il valore inserito nell'input
 })
 
 module.exports = router
