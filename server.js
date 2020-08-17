@@ -9,6 +9,7 @@ const bodyParser = require('body-parser')
 
 const indexRouter = require('./routes/index')
 const authorRouter = require('./routes/authors') // includo nel server il router creato nella rotta specifica, poi dovrò utilizzarlo tramite "use"
+const bookRouter = require('./routes/books')
 
 app.set('view engine', 'ejs') // definisco quale linguaggio utilizzato
 app.set('views', __dirname + '/views') // definisco dove trovare le views
@@ -32,5 +33,6 @@ db.once('open', () => console.log('Connected to Mongoose')) // stampo connession
 
 app.use('/', indexRouter) // dico all'app di usare l'index router
 app.use('/authors', authorRouter) // dico all'app di usare l'author router
+app.use('/books', bookRouter) // dico all'app di usare il book router
 
 app.listen(process.env.PORT || 3000) // definisco la porta del server (3000: è quella per lo sviluppo), l'altra invece è per la pubblicazione quando verrà hostata
