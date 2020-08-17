@@ -5,6 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express')
 const app = express()
 const expressLayouts = require('express-ejs-layouts')
+const bodyParser = require('body-parser')
 
 const indexRouter = require('./routes/index')
 const authorRouter = require('./routes/authors') // includo nel server il router creato nella rotta specifica, poi dovrò utilizzarlo tramite "use"
@@ -14,6 +15,10 @@ app.set('views', __dirname + '/views') // definisco dove trovare le views
 app.set('layout', 'layouts/layout') // definisco dove saranno i miei layouts
 app.use(expressLayouts) // definisco l'utilizzo di express-ejs-layouts
 app.use(express.static('public')) // definisco la cartella public dove ci saranno i file css, js ecc.
+app.use(bodyParser.urlencoded({
+    limit: '10mb', // definisco un limite per caricamenti
+    extended: false
+}))
 
 // setup di mongoose
 const mongoose = require('mongoose')
