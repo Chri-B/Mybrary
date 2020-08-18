@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Author = require('../models/author')
+const Book = require('../models/book')
 
 // All Authors Route
 router.get('/', async (req, res) => {
@@ -37,8 +38,8 @@ router.post('/', async (req, res) => { // post per creare nuovo autore
     })
     try {
         const newAuthor = await author.save() // viene atteso il salvataggio su mongoose (che avviene in modo asincrono) e solo dopo viene popolata la newAuthor
-        // res.redirect('authors/${newAuthor.id}')
-        res.redirect('authors')
+        res.redirect(`authors/${newAuthor.id}`)
+        // res.redirect('authors')
     } catch (error) {
         // se c'è un errore reindirizzo indietro e ripopolo i campi con i valori inseriti, e mostro un error Message
         let locals = {
@@ -48,6 +49,69 @@ router.post('/', async (req, res) => { // post per creare nuovo autore
             author: author,
             locals
         })
+    }
+})
+
+// route show single author
+router.get('/:id', async (req, res) => {
+    try {
+        const author = await Author.findById(req.params.id)
+        const books = await Book.find({ author: author.id }).limit(6).exec()
+        res.render('authors/show', {
+            author: author,
+            booksByAuthor: books
+        })
+    } catch (err) {
+        res.redirect('/')
+    }
+})
+
+// route edit author (questa rotta deve essere creata dopo la rotta new, in quanto altrimenti la rotta new verrebbe interpretata come un nuovo "id")
+router.get('/:id/edit', async (req,res)=>{
+    try {
+        const author = await Author.findById(req.params.id)
+        res.render('authors/edit', { author: author })
+    } catch (error) {
+        res.redirect('/authors')
+    }
+})
+
+// route update author
+router.put('/:id', async (req, res)=>{
+    let author
+    try {
+        author = await Author.findById(req.params.id)
+        author.name = req.body.name
+        await author.save()
+        res.redirect(`/authors/${author.id}`)
+    } catch (error) {
+        if (!author) {
+            res.redirect('/')
+        } else {
+            let locals = {
+                errorMessage: 'Error updating Author'
+            }
+            res.render('authors/new', {
+                author: author,
+                locals
+            })
+        }
+    }
+})
+
+// route delete Author
+router.delete('/:id', async (req, res)=>{
+    let author
+    try {
+        author = await Author.findById(req.params.id)
+        await author.remove()
+        res.redirect('/authors')
+    } catch (error) {
+        if (!author) {
+            res.redirect('/')
+        } else {
+            res.redirect(`/authors/${author.id}`)
+        }
     }
 })
 
