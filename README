@@ -1,0 +1,4 @@
+# Mybrary
+Simple backend project using Node.js / Express / MongoDB.
+You can create, edit and delete an Author.
+You can create, edit and delete a Book and associate it with an existing author.
