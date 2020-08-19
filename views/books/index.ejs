@@ -14,10 +14,10 @@
     </div>
     <button type="submit">Search</button>
 </form>
-
-<% books.forEach(book=>{ %>
 <div>
-    <img height="150" width="100" src="<%= book.coverImagePath %>" alt="<%= book.title %>">
-    
+<% books.forEach(book=>{ %>
+    <a href="/books/<%= book.id %>">
+        <img height="150" width="100" src="<%= book.coverImagePath %>" alt="<%= book.title %>">
+    </a>
+    <% }) %>
 </div>
-<% }) %>
